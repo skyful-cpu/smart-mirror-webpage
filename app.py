@@ -1,0 +1,84 @@
+from flask import Flask, render_template, request, jsonify, make_response
+import json
+import ssl
+
+import static.IoT as IoT
+import static.Recognizer as Recognizer
+
+
+
+# create Flask instance as 'app'
+app = Flask(__name__)
+
+# 최초 접속 URL
+@app.route('/')
+def home_page():
+    return render_template('home.html')
+
+# 브라우저에서 음성 인식 후 접속하는 URL 함수
+@app.route('/speech_recog', methods=['POST'])
+def control_iot():
+
+    # save json result in dictionary type
+    speech_recog_result = request.get_json()
+    
+    # get actual string value from dictionary
+    # use only first element in result list
+    user_said = speech_recog_result['speech_recog_result'][0]
+    #print(f'raw cammand : {user_said}')
+    
+    # create recognizer instance
+    recognizer = Recognizer.Recognizer(threshold=0.6)
+    
+    command = recognizer.what_user_said(user_said)
+    
+    if command != 'no match':
+        # send command to IoT class
+        # and control each IoT
+        iot = IoT.IoT(command)
+        control_result = iot.control_iot()
+        print(control_result)
+        
+        response = app.response_class(
+            response = json.dumps(control_result),
+            status = 200,
+            mimetype = 'appliation/json'
+        )
+        
+    print('-'*30)
+    return response
+    
+# 홈페이지를 render한 다음 최초 실행 당시의 IoT on/off 여부를 확인해
+# 브라우저에 응답해 주는 함수
+@app.route('/initial_setting', methods=['GET'])
+def response_initial_iot_status():
+    iot = IoT.IoT()
+    resp_dict = iot.get_initial_state()
+
+    response = app.response_class(
+        response = json.dumps(resp_dict),
+        status = 200,
+        mimetype = 'appliation/json'
+    )
+
+    return response
+    
+# 임시로 만든 함수
+# iot 상태 업데이트
+@app.route('/update_iot', methods=['GET'])
+def update_iot_status():
+    resp_dict = {'light': 'off', 'boiler': 'off', 'fan': 'off'}
+
+    response = app.response_class(
+        response = json.dumps(resp_dict),
+        status = 200,
+        mimetype = 'appliation/json'
+    )
+
+    return response
+
+if __name__ == '__main__':
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    ssl_context.load_cert_chain(certfile='ssl/server.crt', keyfile='ssl/server.key', password='3680')
+    
+    app.run(debug=True, host='0.0.0.0', port=3680, ssl_context=ssl_context)
