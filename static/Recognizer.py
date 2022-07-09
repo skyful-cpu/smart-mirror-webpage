@@ -22,9 +22,13 @@ class Recognizer:
     def __init__(self, threshold):
         self.threshold = threshold
     
-    # 인식된 음성과 명령어 간의 유사도를 계산해
-    # 가장 높은 유사도의 명령어를 정답으로 간주
+    # 음성 인식 결과를 반환하는 함수
     def what_user_said(self, user_said):
+        '''
+        인식된 음성과 명령어 간의 유사도를 계산해
+        완전히 일치하는 명령어를 반환하거나
+        가장 높은 유사도의 명령어를 정답으로 반환
+        '''
     
         user_said = user_said.strip()
         user_said = user_said.replace(' ', '')
@@ -51,9 +55,10 @@ class Recognizer:
             if jacad >= self.threshold:
                 answer_candidate.append(index)
         
+        # 일치하는 결과가 없는 경우 no match 반환
+        # thershold 이상의 결과가 있는 경우 가장 점수가 높은 명령어 반환
         if len(answer_candidate) == 0:
             print('no match')
             return
         else:
-            #print(f'recognizer, not perfectly match : {commands[max(answer_candidate)]}')
             return commands[max(answer_candidate)]

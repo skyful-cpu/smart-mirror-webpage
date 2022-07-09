@@ -1,7 +1,14 @@
 // IoT 종류
 IoTs = ['light', 'boiler', 'fan'];
+
+var startAnnyang = document.getElementById('annyang-start');
+var pauseAnnyang = document.getElementById('annyang-pause');
+var result = document.getElementsByClassName('result')[0];
     
 // 시간을 표시하는 함수
+// HH:MM:SS
+// X요일
+// YYYY년 MM월 DD일
 function displayClock() {
     var clock = document.getElementById("time");
     var todayDay = document.getElementById("day");
@@ -10,7 +17,7 @@ function displayClock() {
     // 요일 배열
     var dayInString = ['일', '월', '화', '수', '목', '금', '토'];
 
-    // 현재 시간을 불러온다
+    // 현재 시간을 불러온다`
     var currentDate = new Date();
 
     // 연도 정보를 저장
@@ -38,53 +45,29 @@ function init() {
     setInterval(displayClock, 1000);
 }
 
-var startAnnyang = document.getElementById('annyang-start');
-var pauseAnnyang = document.getElementById('annyang-pause');
-var result = document.getElementsByClassName('result')[0];
-
+// (임시) annyang 시작 버튼 이벤트 리스너
 startAnnyang.addEventListener('click', function() {
     if (annyang) {
-        /*// set commands
-        var commands = {
-            '조명 켜줘.' : function() {
-                result.innerHTML = '조명을 켰습니다';
-            },
-            '불꺼' : function() {
-                result.innerHTML = '조명을 껐습니다';
-            }
-        };*/
     
         //annyang.addCommands(commands);
         //annyang.debug();
         annyang.setLanguage('ko');
         annyang.start();
         console.log('annyang started');
-
-        /*
-        // 5초 동안 녹음하고 annyang을 끈다.
-        setTimeout(function() {
-            annyang.pause();
-            console.log('annyang stopped');
-            result.innerHTML = '';
-        }, 5000);*/
     }
 });
 
+// (임시) annyang 중지 버튼 이벤트 리스너
 pauseAnnyang.addEventListener('click', function() {
     annyang.pause();
     console.log('annyang stopped');
 });
 
-/*
-annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
-    console.log(userSaid); // sample output: 'hello'
-    console.log(commandText); // sample output: 'hello (there)'
-    console.log(phrases); // sample output: ['hello', 'halo', 'yellow', 'polo', 'hello kitty']
-});*/
-
+// 음성 인식 결과 처리 콜백
 annyang.addCallback('result', function(userSaid) {
-    //console.log(`You said : ${userSaid}`);
-    result.innerHTML = userSaid;
+    result.innerHTML = userSaid[0];
+
+    // 3초동안 화면에 음성 인식 결과 표시
     setTimeout(function() {
         result.innerHTML = ''
     }, 3000);
@@ -92,7 +75,6 @@ annyang.addCallback('result', function(userSaid) {
 	// make json and send it to server
     const json_dict = {'speech_recog_result': userSaid};
     const stringify = JSON.stringify(json_dict);
-	
 	
 	// 음성 인식 결과를 서버로 전송
     $.ajax({
@@ -106,37 +88,9 @@ annyang.addCallback('result', function(userSaid) {
 			changeIotUi(json_data);
         }
     });
-	
-	/*
-	// 새로운 버전
-	$.ajax({
-		type: 'GET',
-		url: '/post',
-		contentType: 'application/json',
-		data: stringify
-	}).done(function(json_data) {
-		console.log('success');
-		console.log(json_data);
-	}).fail(function(xhr, status, error) {
-		console.log('error');
-	});*/
-	
-	/*
-	// 서버에서 IoT 제어 결과를 받아옴
-	setTimeout(function() {
-		$.ajax({
-			url: '/post',
-			type: 'GET',
-			dataType: 'json',
-			success: function(reply) {
-				console.log(reply);
-			}
-		});
-	}, 7000);*/
 });
 
-/////////////////////////////////// 최초 접속 시 IoT 상태 표시 ///////////////////////////////////
-
+// 최초 웹 페이지 접속 시 IoT on/off 여부를 json 형식으로 받아오는 함수
 function setInitialIotStatus() {
     $.ajax({
         type: 'GET',
@@ -150,8 +104,7 @@ function setInitialIotStatus() {
     });
 }
 
-/////////////////////////////////// 최초 접속 시 IoT 상태 표시 ///////////////////////////////////
-
+// 웹 페이지 IoT UI 바꿔주는 함수
 function changeIotUi(json_data) {
     for (var key in json_data) {
         if (IoTs.includes(key)) {

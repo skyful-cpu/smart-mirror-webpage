@@ -19,12 +19,12 @@ commands = [
 ]
 
 # 각 IoT 기기에 사용된 블루투스 모듈의 MAC 주소
-# 조명, 가스밸브, 보일러, 창문, 커튼, 환풍기 순으로 저장
 mac = [
     '98:D3:31:FB:86:EE',
     '98:DA:60:01:C3:37'
     ]
-    
+
+# IoT 기기 종류
 iot = ['light', 'boiler', 'fan']
 
 class IoT:
@@ -38,6 +38,11 @@ class IoT:
         
     # 최초 접속 시 IoT on / off 여부 확인
     def get_initial_state(self):
+        '''
+        웹 페이지 최초 접속 시 블루투스 통신으로 IoT on / off 여부 확인
+
+        결과를 dictionary {'IoT1': 'state', ...} 로 반환
+        '''
         socket = BluetoothSocket( RFCOMM )
         socket.connect((mac[0], 1))
         socket.send('i')
@@ -64,7 +69,7 @@ class IoT:
     # command에 따른 IoT 제어
     def control_iot(self):
         '''
-        IoT 기기를 제어하는 함수
+        블루투스로 IoT 기기를 제어하는 함수
         어느 IoT를 제어했는 지에 대한 정보를 dictionary 형태로 반환
         '''
         

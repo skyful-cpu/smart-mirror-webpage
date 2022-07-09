@@ -8,19 +8,21 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
-        <div class="clock">
-            <p id="time"></p>
-            <p id="day"></p>
-            <p id="date"></p>
-        </div>
-		<div class="icon">
-			<p id="light">LIGHT</p>
-            <p id="boiler">BOILER</p>
-            <p id="fan">FAN</p>
-		</div>
         <div class="annyang-control">
             <input id="annyang-start" type="button" value="mic on">
             <input id="annyang-pause" type="button" value="mic off">
+        </div>
+        <div id="layout-top">
+            <div class="clock">
+                <p id="time"></p>
+                <p id="day"></p>
+                <p id="date"></p>
+            </div>
+            <div class="icon">
+                <p id="light">LIGHT</p>
+                <p id="boiler">BOILER</p>
+                <p id="fan">FAN</p>
+            </div>
         </div>
         <div class="result">
             
